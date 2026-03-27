@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>茶海虾王 - 后台管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { background-color: #f4f6f9; font-family: 'Helvetica Neue', sans-serif; }
+        .sidebar { width: 250px; background: #2c3e50; color: white; position: fixed; top: 0; left: 0; height: 100%; padding: 20px 0; }
+        .main-content { margin-left: 250px; padding: 40px; }
+    </style>
+</head>
+<body>
+
+    <!-- 侧边栏 -->
+    <div class="sidebar">
+        <div class="text-center mb-10">
+            <div class="w-16 h-16 bg-yellow-500 rounded-full mx-auto mb-3 flex items-center justify-center text-2xl">
+                <i class="fas fa-crown"></i>
+            </div>
+            <h3 class="text-xl font-bold">虾王后台</h3>
+        </div>
+        <ul class="mt-10 space-y-4 px-4">
+            <li><a href="#" class="flex items-center gap-3 p-3 bg-red-700 rounded text-white"><i class="fas fa-tachometer-alt"></i> 仪表盘</a></li>
+            <li><a href="#" class="flex items-center gap-3 p-3 hover:bg-red-600 rounded text-white"><i class="fas fa-box"></i> 商品管理</a></li>
+            <li><a href="#" class="flex items-center gap-3 p-3 hover:bg-red-600 rounded text-white"><i class="fas fa-shopping-cart"></i> 订单处理</a></li>
+            <li><a href="#" class="flex items-center gap-3 p-3 hover:bg-red-600 rounded text-white"><i class="fas fa-users"></i> 用户列表</a></li>
+        </ul>
+    </div>
+
+    <!-- 主内容区 -->
+    <div class="main-content">
+        <h1 class="text-2xl font-bold mb-6 text-gray-800"><i class="fas fa-box-open text-red-600"></i> 商品管理后台</h1>
+        
+        <!-- 添加商品卡片 -->
+        <div class="bg-white p-6 rounded-lg shadow mb-6">
+            <h2 class="text-xl font-semibold mb-4">添加新商品</h2>
+            <div class="grid grid-cols-2 gap-4">
+                <input type="text" placeholder="商品名称 (如: 阳澄湖大闸蟹)" class="border p-3 rounded col-span-1" value="特级西湖龙井">
+                <input type="number" placeholder="价格 (分)" class="border p-3 rounded col-span-1" value="29800">
+                <input type="text" placeholder="图片链接 (URL)" class="border p-3 rounded col-span-2" value="https://img14.360buyimg.com/n7/jfs/t1/182715/16/18406/85814/6053c145E5f112a2d/0b3a0f5d5b8d9a7d.jpg">
+                <button class="bg-red-600 text-white p-3 rounded hover:bg-red-700 col-span-2">
+                    <i class="fas fa-save mr-2"></i> 保存商品 (模拟)
+                </button>
+            </div>
+        </div>
+
+        <!-- 商品列表模拟 -->
+        <div class="bg-white p-6 rounded-lg shadow">
+            <h2 class="text-xl font-semibold mb-4">当前商品列表 (模拟数据)</h2>
+            <table class="w-full text-left">
+                <thead>
+                    <tr class="border-b">
+                        <th class="py-3">ID</th>
+                        <th>商品名称</th>
+                        <th>价格</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="border-b">
+                        <td class="py-3">1</td>
+                        <td>特级西湖龙井</td>
+                        <td>¥298.00</td>
+                        <td><button class="text-blue-500">编辑</button> | <button class="text-red-500">删除</button></td>
+                    </tr>
+                    <tr>
+                        <td class="py-3">2</td>
+                        <td>鲜活波士顿龙虾</td>
+                        <td>¥128.00</td>
+                        <td><button class="text-blue-500">编辑</button> | <button class="text-red-500">删除</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
