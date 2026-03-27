@@ -6,6 +6,7 @@
     <title>茶海虾王网 - 综合电商平台</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- 引入 Supabase JS 库 -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { --primary-red: #E60012; --primary-gold: #FFD700; }
@@ -91,43 +92,58 @@
     </nav>
 
     <script>
-        // 这里保留 Supabase 连接，如果数据库里有数据，就显示数据库的数据
-        const SUPABASE_URL = 'https://gdxrqdbotbbbmbmdxdmz.supabase.co'; 
-        const SUPABASE_KEY = 'sb_publishable_YlWCJpoYZY_fkMQ4Jfxvww_THe8_CJ4';
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        // 使用立即执行函数 (IIFE) 封装，防止全局变量污染
+        (function() {
+            // 1. 配置 Supabase 连接信息
+            const SUPABASE_URL = 'https://gdxrqdbotbbbmbmdxdmz.supabase.co'; 
+            const SUPABASE_KEY = 'sb_publishable_YlWCJpoYZY_fkMQ4Jfxvww_THe8_CJ4';
 
-        async function loadProducts() {
-            const list = document.getElementById('product-list');
-            try {
-                let { data: products, error } = await supabase.from('products').select('*');
-                if (error || !products || products.length === 0) {
-                    // 如果数据库没数据，就保持上面写死的默认商品
-                    return;
-                }
-                // 如果数据库有数据，就动态生成
-                list.innerHTML = '';
-                products.forEach(p => {
-                    const price = (p.price / 100).toFixed(2);
-                    list.innerHTML += `
-                        <div class="bg-white rounded-lg shadow p-3 product-card cursor-pointer relative overflow-hidden">
-                            <div class="h-40 bg-gray-50 rounded mb-2 flex items-center justify-center text-6xl">📦</div>
-                            <h3 class="text-sm font-medium h-10 overflow-hidden text-gray-800">\${p.title}</h3>
-                            <div class="mt-2 flex items-end justify-between">
-                                <div>
-                                    <span class="text-red-600 font-bold text-lg">¥\${price}</span>
+            // 2. 初始化 Supabase 客户端实例（使用不同的变量名，如 _supabase）
+            const _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+            // 3. 定义加载商品的异步函数
+            async function loadProducts() {
+                const list = document.getElementById('product-list');
+                
+                try {
+                    // 从 'products' 表查询所有数据
+                    let { data: products, error } = await _supabase.from('products').select('*');
+
+                    // 如果查询出错或没有数据，则保持默认商品
+                    if (error || !products || products.length === 0) {
+                        console.log("数据库无数据或连接失败，使用离线默认数据");
+                        return;
+                    }
+
+                    // 如果有数据，清空默认内容并渲染数据库中的商品
+                    list.innerHTML = '';
+                    products.forEach(p => {
+                        const price = (p.price / 100).toFixed(2);
+                        list.innerHTML += `
+                            <div class="bg-white rounded-lg shadow p-3 product-card cursor-pointer relative overflow-hidden">
+                                <div class="h-40 bg-gray-50 rounded mb-2 flex items-center justify-center text-6xl">📦</div>
+                                <h3 class="text-sm font-medium h-10 overflow-hidden text-gray-800">\${p.title}</h3>
+                                <div class="mt-2 flex items-end justify-between">
+                                    <div>
+                                        <span class="text-red-600 font-bold text-lg">¥\${price}</span>
+                                    </div>
+                                    <button class="bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center hover:bg-red-700">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
                                 </div>
-                                <button class="bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center hover:bg-red-700">
-                                    <i class="fas fa-plus"></i>
-                                </button>
                             </div>
-                        </div>
-                    `;
-                });
-            } catch (err) {
-                console.log("数据库连接失败，使用离线默认数据");
+                        `;
+                    });
+                } catch (err) {
+                    // 捕获异常，打印错误日志，同样使用默认数据
+                    console.error('加载商品时发生错误:', err);
+                    console.log("使用离线默认数据");
+                }
             }
-        }
-        loadProducts();
+
+            // 4. 页面加载完成后执行加载函数
+            window.addEventListener('DOMContentLoaded', loadProducts);
+        })();
     </script>
 </body>
 </html>
