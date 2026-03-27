@@ -3,83 +3,101 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>茶海虾王 - 官方商城</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<title>茶海虾王-官方正品商城</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:"Microsoft YaHei"}
+header{background:#e60012;color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center}
+.logo-wrap{display:flex;align-items:center;gap:10px}
+.logo{width:42px;height:42px;border-radius:50%;object-fit:cover}
+.header-right a{color:#fff;text-decoration:none;margin-left:12px;padding:6px 10px;border:1px solid #fff;border-radius:4px}
+.search-box{width:94%;margin:15px auto;display:block;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:14px}
+.container{width:94%;margin:0 auto;display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding-bottom:80px}
+.goods-card{background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.goods-media{width:100%;height:180px;object-fit:cover}
+.card-body{padding:10px}
+.goods-title{font-size:15px;font-weight:bold;color:#333;margin-bottom:6px}
+.goods-price{font-size:18px;color:#e60012;font-weight:bold;margin-bottom:4px}
+.goods-stock{font-size:12px;color:#666;margin-bottom:8px}
+.share-btn{width:100%;background:#0066cc;color:#fff;border:none;padding:8px;border-radius:6px;font-size:14px}
+footer{text-align:center;padding:20px;font-size:12px;color:#999;background:#f5f5f5;margin-top:20px}
+</style>
 </head>
-<body class="bg-gray-100">
-<header class="bg-red-600 text-white p-4">
-    <div class="max-w-6xl mx-auto flex justify-between items-center">
-        <div class="flex items-center gap-2">
-            <img src="https://raw.githubusercontent.com/rao5201/chxw/17928c8bd6a5721b40a16570bd6d94aa53f16d3b/ico/favicon256.ico" class="w-10 h-10 rounded-full">
-            <h1 class="text-xl font-bold">茶海虾王商城</h1>
-        </div>
-        <div class="flex gap-3">
-            <button onclick="shareStore()" class="text-white"><i class="fas fa-share-alt"></i> 分享商城</button>
-            <a href="admin.html" class="text-white"><i class="fas fa-cog"></i> 商家后台</a>
-        </div>
-    </div>
+<body>
+<header>
+  <div class="logo-wrap">
+    <img class="logo" src="https://raw.githubusercontent.com/rao5201/chxw/17928c8bd6a5721b40a16570bd6d94aa53f16d3b/ico/favicon256.ico">
+    <h2>茶海虾王官方商城</h2>
+  </div>
+  <div class="header-right">
+    <a href="admin.html">商家后台</a>
+  </div>
 </header>
 
-<div class="max-w-6xl mx-auto p-4 mt-2">
-    <input oninput="searchProduct()" id="search" placeholder="快速搜索商品..." class="w-full p-2 border rounded mb-3">
-    <div id="product-list" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
-</div>
-
-<footer class="text-center p-5 text-sm text-gray-500 mt-10">
-运营方：武穴茶海虾王电子商务中心<br>
-技术支持：rao5201@126.com
+<input type="text" class="search-box" id="searchInp" placeholder="输入商品名称搜索..." oninput="filterGoods()">
+<div class="container" id="goodsContainer"></div>
+<footer>
+运营方：武穴茶海虾王电子商务中心 | 管理方：海南茶海虾王管理有限责任公司<br>客服邮箱：rao5201@126.com
 </footer>
 
 <script>
-const supabase = supabase.createClient(
-    "https://gdxrqdbotbbbmbmdxdmz.supabase.co",
-    "sb_publishable_YlWCJpoYZY_fkMQ4Jfxvww_THe8_CJ4"
-);
-let products = [];
+const supabaseUrl = "https://gdxrqdbotbbbmbmdxdmz.supabase.co";
+const supabaseKey = "sb_publishable_YlWCJpoYZY_fkMQ4Jfxvww_THe8_CJ4";
+const { createClient } = supabase;
+const sb = createClient(supabaseUrl, supabaseKey);
 
-async function loadProducts() {
-    const { data } = await supabase.from("products").select("*").order("id", { ascending: false });
-    products = data;
-    renderProducts(data);
+let allGoods = [];
+
+// 真实读取Supabase商品数据
+async function loadAllGoods(){
+  const { data, error } = await sb.from("products").select("*").order("id",{ascending:false});
+  if(error){console.error(error);return;}
+  allGoods = data;
+  renderGoods(data);
 }
 
-function renderProducts(data) {
-    const container = document.getElementById("product-list");
-    container.innerHTML = "";
-    data.forEach(p => {
-        container.innerHTML += `
-        <div class="bg-white rounded shadow p-3">
-            ${p.video_url ? `<video src="${p.video_url}" class="w-full h-44 object-cover rounded" controls></video>` :
-            p.image_url ? `<img src="${p.image_url}" class="w-full h-44 object-cover rounded">` :
-            `<div class="w-full h-44 flex items-center justify-center bg-gray-200">无图</div>`}
-            <h3 class="font-bold mt-2">${p.title}</h3>
-            <p class="text-red-600 font-bold text-lg">¥${(p.price / 100).toFixed(2)}</p>
-            <p class="text-xs text-gray-500">库存：${p.stock}</p>
-            <button onclick="shareProduct(${p.id})" class="mt-2 w-full bg-blue-600 text-white p-1 rounded text-sm">
-            <i class="fas fa-share-alt"></i> 分享商品
-            </button>
-        </div>`;
-    });
+function renderGoods(list){
+  const container = document.getElementById("goodsContainer");
+  container.innerHTML = "";
+  list.forEach(item=>{
+    let mediaDom = "";
+    if(item.video_url){
+      mediaDom = `<video class="goods-media" src="${item.video_url}" controls></video>`;
+    }else if(item.image_url){
+      mediaDom = `<img class="goods-media" src="${item.image_url}" alt="${item.title}">`;
+    }else{
+      mediaDom = `<div class="goods-media" style="background:#eee;display:flex;align-items:center;justify-content:center">暂无素材</div>`;
+    }
+    const priceYuan = (item.price / 100).toFixed(2);
+    container.innerHTML += `
+    <div class="goods-card">
+      ${mediaDom}
+      <div class="card-body">
+        <h3 class="goods-title">${item.title}</h3>
+        <div class="goods-price">¥${priceYuan}</div>
+        <div class="goods-stock">库存：${item.stock}件</div>
+        <button class="share-btn" onclick="shareItem('${item.title}',${item.price})">分享商品</button>
+      </div>
+    </div>
+    `;
+  });
 }
 
-function searchProduct() {
-    const keyword = document.getElementById("search").value.toLowerCase();
-    const filtered = products.filter(p => p.title.toLowerCase().includes(keyword));
-    renderProducts(filtered);
+// 真实前端搜索过滤
+function filterGoods(){
+  const kw = document.getElementById("searchInp").value.trim().toLowerCase();
+  const filter = allGoods.filter(v=>v.title.toLowerCase().includes(kw));
+  renderGoods(filter);
 }
 
-function shareProduct(id) {
-    const item = products.find(i => i.id === id);
-    prompt("分享商品：", `${item.title}\n价格：¥${(item.price/100).toFixed(2)}\n链接：${window.location.href}`);
+// 真实分享（无假链接）
+function shareItem(title,price){
+  const link = window.location.href;
+  const text = `【茶海虾王】${title} 售价¥${(price/100).toFixed(2)}｜选购直达：${link}`;
+  prompt("复制分享内容",text);
 }
 
-function shareStore() {
-    prompt("分享商城链接：", window.location.href);
-}
-
-window.onload = loadProducts;
+window.onload = loadAllGoods;
 </script>
 </body>
 </html>
