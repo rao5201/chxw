@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>茶海虾王网 - 综合电商平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- 引入 Supabase JS 库 -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root { --primary-red: #E60012; --primary-gold: #FFD700; }
+        body { background-color: #f4f4f4; font-family: 'PingFang SC', sans-serif; padding-bottom: 60px; }
+        .brand-red { background-color: var(--primary-red); color: white; }
+        .text-gold { color: var(--primary-gold); }
+        .bg-gold { background-color: var(--primary-gold); }
+        .product-card { transition: all 0.2s; }
+        .product-card:active { transform: scale(0.98); }
+    </style>
+</head>
+<body>
+
+    <!-- 头部导航 -->
+    <header class="brand-red sticky top-0 z-50 shadow-md">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2">
+                    <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-red-600 font-bold text-xl shadow-inner">
+                        <i class="fas fa-crown"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold tracking-wider">茶海虾王 CHXW</h1>
+                        <p class="text-xs text-gold">云端数据库已连接</p>
+                    </div>
+                </div>
+                <div class="relative cursor-pointer">
+                    <i class="fas fa-shopping-cart text-2xl"></i>
+                    <span class="absolute -top-2 -right-2 bg-gold text-red-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">0</span>
+                </div>
+            </div>
+            <div class="relative">
+                <input type="text" placeholder="搜索云端商品..." class="w-full py-2 px-4 rounded-l-lg focus:outline-none text-gray-700">
+                <button class="absolute right-0 top-0 h-full bg-gold text-red-600 px-6 rounded-r-lg font-bold">搜索</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 商品列表区域 -->
+    <section class="container mx-auto px-4 mt-6 mb-20">
+        <h2 class="font-bold text-lg mb-4 border-l-4 border-red-600 pl-2">
+            <i class="fas fa-cloud mr-2"></i>云端热销商品
+        </h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="product-list">
+            <!-- 数据将通过 Supabase 动态加载 -->
+            <div class="col-span-4 text-center py-10 text-gray-500">
+                <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+                <p>正在连接茶海虾王云端数据库...</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 底部导航 -->
+    <nav class="fixed bottom-0 w-full bg-white border-t flex justify-around py-3 z-50 text-xs text-gray-600">
+        <div class="flex flex-col items-center text-red-600"><i class="fas fa-home text-lg mb-1"></i>首页</div>
+        <div class="flex flex-col items-center"><i class="fas fa-th-large text-lg mb-1"></i>分类</div>
+        <div class="flex flex-col items-center"><i class="fas fa-shopping-bag text-lg mb-1"></i>购物车</div>
+        <div class="flex flex-col items-center"><i class="fas fa-user text-lg mb-1"></i>我的</div>
+    </nav>
+
+    <script>
+        // ==========================================
+        // ⚙️ 配置区域 (已自动填入您的信息)
+        // ==========================================
+        
+        // 1. 您的 Project URL
+        const SUPABASE_URL = 'https://gdxrqdbotbbbmbmdxdmz.supabase.co'; 
+        
+        // 2. 您的 API Key
+        const SUPABASE_KEY = 'sb_publishable_YlWCJpoYZY_fkMQ4Jfxvww_THe8_CJ4';
+
+        // 初始化 Supabase
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // ==========================================
+        // 🛒 加载商品逻辑
+        // ==========================================
+        async function loadProducts() {
+            const list = document.getElementById('product-list');
+            
+            try {
+                // 从数据库查询数据
+                let { data: products, error } = await supabase
+                    .from('products')
+                    .select('*');
+
+                if (error) {
+                    throw error;
+                }
+
+                // 清空加载提示
+                list.innerHTML = '';
+
+                if (!products || products.length === 0) {
+                    list.innerHTML = `
+                        <div class="col-span-4 text-center p-10">
+                            <div class="text-6xl mb-4">📦</div>
+                            <p class="text-gray-500">数据库连接成功，但里面是空的！</p>
+                            <p class="text-sm text-gray-400 mt-2">请去 Supabase 后台的 "Table Editor" 添加商品数据。</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // 渲染商品
+                products.forEach(p => {
+                    // 价格除以100 (假设存的是分)
+                    const price = (p.price / 100).toFixed(2);
+                    
+                    list.innerHTML += `
+                        <div class="bg-white rounded-lg shadow p-3 product-card cursor-pointer relative overflow-hidden">
+                            <span class="absolute top-2 left-2 bg-red-600 text-white text-[10px] px-1 rounded z-10">云端同步</span>
+                            <div class="h-40 bg-gray-50 rounded mb-2 flex items-center justify-center text-6xl">${p.image_url || '📦'}</div>
+                            <h3 class="text-sm font-medium h-10 overflow-hidden text-gray-800">${p.title}</h3>
+                            <div class="mt-2 flex items-end justify-between">
+                                <div>
+                                    <span class="text-red-600 font-bold text-lg">¥${price}</span>
+                                    <span class="text-xs text-gray-400 ml-1">库存:${p.stock || 99}</span>
+                                </div>
+                                <button class="bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center hover:bg-red-700">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+            } catch (err) {
+                console.error('连接错误:', err);
+                list.innerHTML = `
+                    <div class="col-span-4 text-center text-red-500 p-4 bg-red-50 rounded">
+                        <i class="fas fa-exclamation-triangle text-2xl mb-2"></i>
+                        <p>连接云端失败！</p>
+                        <p class="text-sm text-left mt-2 font-mono bg-white p-2 rounded border">错误详情: ${err.message}</p>
+                        <p class="text-xs text-gray-500 mt-2">请检查是否已在 Supabase 创建 'products' 表。</p>
+                    </div>
+                `;
+            }
+        }
+
+        // 页面加载时执行
+        loadProducts();
+    </script>
+</body>
+</html>
