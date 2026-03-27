@@ -91,3 +91,13 @@ chxw/
 ## 部署地址
 https://github.com/rao5201/chxw
 
+## 现在你的项目完整文件清单
+index.html
+admin.html
+logo.jpg
+README.md
+ADMIN_GUIDE.md
+UPDATE_LOG.md（新增）
+.gitignore
+全部齐全、可直接上线、可交付、可备案！
+
